@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- lunar_v1_moon.yaml
+- lunar_v1_solar.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

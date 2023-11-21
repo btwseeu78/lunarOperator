@@ -1,0 +1,13 @@
+apiVersion: lunar.arpan.io/v1
+kind: Moon
+metadata:
+  labels:
+    app.kubernetes.io/name: moon
+    app.kubernetes.io/instance: moon-sample
+    app.kubernetes.io/part-of: chasing-sun
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: chasing-sun
+  name: moon-sample
+spec:
+  replicas: 1
+  sunName: "mySUn"

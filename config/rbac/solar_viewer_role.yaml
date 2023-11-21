@@ -1,0 +1,27 @@
+# permissions for end users to view solars.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: solar-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: chasing-sun
+    app.kubernetes.io/part-of: chasing-sun
+    app.kubernetes.io/managed-by: kustomize
+  name: solar-viewer-role
+rules:
+- apiGroups:
+  - lunar.arpan.io
+  resources:
+  - solars
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lunar.arpan.io
+  resources:
+  - solars/status
+  verbs:
+  - get

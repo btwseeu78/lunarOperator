@@ -1,0 +1,27 @@
+# permissions for end users to view moons.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: moon-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: chasing-sun
+    app.kubernetes.io/part-of: chasing-sun
+    app.kubernetes.io/managed-by: kustomize
+  name: moon-viewer-role
+rules:
+- apiGroups:
+  - lunar.arpan.io
+  resources:
+  - moons
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - lunar.arpan.io
+  resources:
+  - moons/status
+  verbs:
+  - get
