@@ -67,7 +67,7 @@ func (r *SolarReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	cmap := &corev1.ConfigMap{}
-
+	actual := &corev1.ConfigMap{}
 	// find the ConfigMap
 
 	err = r.Get(ctx, types.NamespacedName{Name: req.Name, Namespace: req.Namespace}, cmap)
@@ -77,12 +77,33 @@ func (r *SolarReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			log.Info("The ConfigMap Created is missing")
 			actual, err = r.configMapForOperator(solartype)
 
-			if !equality.Semantic.DeepDerivative(actual.Data, cmap.Data) {
-
+			if err != nil {
+				log.Error(err, "Unable to generate manifest", "Name", solartype.Spec.MyName, "NameSpace", solartype.Namespace)
 			}
+
+			err = r.Create(ctx, actual)
+
+			if err != nil {
+				log.Error(err, "Unable to Create Controller object", "Name", actual.Name, "NameSpace", actual.Namespace)
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{}, nil
 
 		}
 
+	}
+
+	//check for update the cache
+
+	if !equality.Semantic.DeepDerivative(actual, cmap) {
+		log.Info("Updating The diff in Configmap", "Name", req.Name, "NameSpece", req.Namespace)
+		cmap = actual
+		err = r.Update(ctx, cmap)
+		if err != nil {
+			log.Error(err, "Unable to Update", "Name", req.Name, "NameSpace", req.Namespace)
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{Requeue: true}, nil
 	}
 
 	return ctrl.Result{}, nil
