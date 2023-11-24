@@ -18,11 +18,15 @@ package controller
 
 import (
 	"context"
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/api/errors"
 
 	lunarv1 "github.com/btwseeu78/chasing-sun/api/v1"
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -62,7 +66,45 @@ func (r *SolarReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	cmap := &corev1.ConfigMap{}
+
+	// find the ConfigMap
+
+	err = r.Get(ctx, types.NamespacedName{Name: req.Name, Namespace: req.Namespace}, cmap)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("The ConfigMap Created is missing")
+			actual, err = r.configMapForOperator(solartype)
+
+			if !equality.Semantic.DeepDerivative(actual.Data, cmap.Data) {
+
+			}
+
+		}
+
+	}
+
 	return ctrl.Result{}, nil
+}
+
+func (r *SolarReconciler) configMapForOperator(solar *lunarv1.Solar) (*corev1.ConfigMap, error) {
+	cmap := &corev1.ConfigMap{}
+	configmapData := make(map[string]string, 0)
+	sunProperties := `
+	color.sun=red
+	temp.sun=1300
+	`
+	configmapData["sun.properties"] = sunProperties
+	cmap = &corev1.ConfigMap{
+		Data: configmapData,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      solar.Spec.MyName,
+			Namespace: solar.Namespace,
+		},
+	}
+	err := ctrl.SetControllerReference(solar, cmap, r.Scheme)
+	return cmap, err
 }
 
 // SetupWithManager sets up the controller with the Manager.

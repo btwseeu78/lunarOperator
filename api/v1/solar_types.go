@@ -35,7 +35,7 @@ type SolarStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:JSONPath=".spec.moonName",name="MoonName",type="strin"
+//+kubebuilder:printcolumn:JSONPath=".spec.status.moonName",name="MoonName",type="strin"
 
 // Solar is the Schema for the solars API
 type Solar struct {
